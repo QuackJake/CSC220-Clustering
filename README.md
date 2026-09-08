@@ -1,331 +1,142 @@
 # Wine Dataset Clustering Analysis
 
-## Project Overview
+A machine learning project comparing multiple unsupervised clustering algorithms on the Wine dataset from scikit-learn, including exploratory data analysis, dimensionality reduction, cluster evaluation, visualization, and stability analysis.
 
-This project analyzes the underlying structure of the **Wine dataset** from `sklearn.datasets` using multiple unsupervised clustering algorithms. The goal is to compare how different clustering approaches identify groups within the wine samples and determine whether those groups represent meaningful differences in chemical composition.
+## Overview
 
-The analysis compares five clustering methods:
-
-* **K-Means**
-* **K-Medoids**
-* **Agglomerative Clustering**
-* **Gaussian Mixture Models (GMM)**
-* **DBSCAN**
-
-The project includes exploratory data analysis, feature scaling, PCA dimensionality reduction, model selection, cluster evaluation, visualization, and stability analysis.
-
----
-
-## Dataset
-
-The analysis uses the `load_wine()` dataset from `sklearn.datasets`.
-
-* **Samples:** 178 wine observations
-* **Features:** 13 chemical properties
-* **Target:** Three wine classes, used only as a reference and **not** during clustering
-
-The chemical features describe properties such as alcohol, flavonoids, phenolic compounds, color intensity, and other measurements associated with the wines.
-
----
-
-## Preprocessing
-
-Before clustering, the data was prepared using the following process:
-
-1. **Feature Scaling**
-   All 13 chemical features were standardized using `StandardScaler` so that features with larger numerical ranges did not disproportionately influence the clustering algorithms.
-
-2. **Dimensionality Reduction**
-   Principal Component Analysis (PCA) was applied to reduce the dimensionality of the standardized dataset while retaining approximately **95% of the variance**.
-
-3. **Outlier Diagnostics**
-   An IQR-based outlier analysis was performed to identify potentially unusual observations. The identified observations were not automatically removed from the dataset.
-
-PCA also provided a useful representation for visualizing the resulting clusters and examining how the major sources of variation contribute to separation between groups.
-
----
-
-## Clustering Methods
-
-### 1. K-Means
-
-K-Means partitions observations into a predefined number of clusters by minimizing within-cluster variance.
-
-The analysis uses:
-
-* Elbow method / WCSS to evaluate candidate cluster counts
-* Silhouette scores for cluster quality
-* Cluster centers in PCA space
-* 2D PCA cluster visualizations
-* Silhouette plots
-
-K-Means provided a useful baseline because the PCA-transformed data is well suited to centroid-based clustering.
-
-### 2. K-Medoids
-
-K-Medoids is similar to K-Means but uses actual observations as cluster representatives rather than calculated centroids.
-
-The analysis includes:
-
-* Multiple random initializations
-* Within-cluster distance
-* Silhouette scores
-* Gap statistic
-* Medoid locations
-* Cluster stability analysis
-* PCA cluster visualizations
-
-K-Medoids was particularly useful for evaluating whether the identified structure remained consistent across different initializations.
-
-### 3. DBSCAN
-
-DBSCAN identifies dense regions of observations rather than requiring a predetermined number of clusters.
-
-The analysis explores:
-
-* `eps`
-* `min_samples`
-* Number of discovered clusters
-* Number of observations classified as noise
-* Silhouette score for non-noise observations
-* k-distance analysis
-* Parameter sensitivity
-* PCA cluster visualizations
-
-DBSCAN produced the highest silhouette score among the tested approaches, but this result required additional consideration because **more than 100 of the 178 observations were classified as noise**. As a result, the high silhouette score does not necessarily indicate that DBSCAN was the most useful model for this dataset.
-
-### 4. Agglomerative Clustering
-
-Agglomerative clustering builds a hierarchy of clusters by progressively combining observations.
-
-The analysis compares different linkage strategies, including:
-
-* Ward
-* Complete
-* Average
-* Single where applicable
-
-Cluster quality was evaluated using silhouette scores, with dendrograms and PCA visualizations used to examine the resulting structure.
-
-### 5. Gaussian Mixture Models
-
-Gaussian Mixture Models treat the data as a mixture of underlying probability distributions rather than assigning observations strictly to geometric cluster boundaries.
-
-The analysis evaluates multiple covariance structures:
-
-* Full
-* Tied
-* Diagonal
-* Spherical
-
-Model selection uses:
-
-* **BIC**
-* **AIC**
-* Silhouette scores
-* PCA visualizations
-* Gaussian component ellipses
-
-GMM produced slightly better silhouette results than several of the other practical clustering approaches, although the resulting grouping was broadly consistent with the other models.
-
----
-
-## Model Comparison
-
-The different algorithms produced broadly consistent views of the underlying structure, but each method emphasized different characteristics of the data.
-
-| Model             | Key Strength                                 | Key Limitation                                     |
-| ----------------- | -------------------------------------------- | -------------------------------------------------- |
-| **K-Means**       | Simple and effective centroid-based baseline | Assumes relatively compact, spherical clusters     |
-| **K-Medoids**     | Robust representatives and stable clustering | More computationally expensive than K-Means        |
-| **Agglomerative** | Reveals hierarchical relationships           | Results depend on linkage strategy                 |
-| **GMM**           | Models probabilistic cluster membership      | Assumes a Gaussian mixture structure               |
-| **DBSCAN**        | Detects dense regions and outliers           | Classified a large portion of the dataset as noise |
-
-K-Medoids and Agglomerative Clustering produced intuitive solutions with approximately **three clusters**, while GMM achieved slightly stronger silhouette performance without substantially changing the overall grouping.
-
-DBSCAN produced the highest silhouette score, but more than 100 observations were labeled as noise. This makes the result less practical for this dataset despite its strong numerical score.
-
-Overall, no algorithm completely contradicted the others. Instead, the comparison demonstrated that the models capture different aspects of the same underlying structure.
-
----
-
-## Cluster Quality Assessment
-
-The resulting clusters appear to represent meaningful differences within the Wine dataset.
-
-Several forms of evidence support this conclusion:
-
-* Clear separation is visible in PCA space.
-* Cluster profiles show differences across the original chemical features.
-* Statistical testing indicates significant differences between clusters.
-* Boxplots and radar charts reveal distinct chemical profiles.
-* Effect sizes provide additional evidence that the differences are not merely statistically significant but potentially meaningful.
-* K-Medoids produced consistent cluster assignments across different initializations.
-
-The dataset contains only **178 observations**, which makes the relatively well-defined cluster structure particularly useful to examine, while also limiting how confidently the results can be generalized to larger wine populations.
-
-The agreement between multiple clustering approaches, visualizations, statistical analysis, and stability testing provides stronger evidence that the observed groupings reflect meaningful structure rather than random variation or overfitting.
-
----
-
-## Feature Analysis
-
-PCA indicates that much of the separation between observations is driven by chemical characteristics associated with:
-
-* Alcohol
-* Flavonoids
-* Color intensity
-* Phenolic compounds
-
-**PC1** provided the strongest contribution to the observed separation, followed by **PC2**. These components capture important chemical variation within the dataset and help explain why the major wine groupings are relatively distinct.
-
-The later PCA dimensions contribute progressively less to the overall variance. For clustering purposes, the first several components therefore provide a more compact representation of the dataset while retaining most of its information.
-
-Future experiments could investigate whether removing low-variance dimensions or incorporating additional chemically relevant features produces even clearer cluster separation.
-
----
-
-## Visualizations
-
-The project includes several visualizations for evaluating the clustering results, including:
-
-* PCA cluster maps
-* Silhouette plots
-* Elbow/WCSS plots
-* K-Medoids convergence plots
-* Gap statistic analysis
-* DBSCAN k-distance plots
-* DBSCAN parameter sensitivity heatmaps
-* Agglomerative dendrograms
-* GMM BIC/AIC plots
-* Gaussian component visualizations
-* Cluster feature boxplots
-* Radar charts
-* Cross-model cluster comparisons
-
-A universal visualization utility is also used to compare the resulting cluster assignments across the different algorithms.
-
----
-
-## Practical Applications
-
-Although this analysis is performed on a relatively small academic dataset, the approach demonstrates how clustering can be applied to wine chemistry and product analysis.
-
-Potential applications include:
-
-* **Wine research:** Identifying groups of wines with similar chemical profiles.
-* **Winemaking:** Investigating relationships between chemical composition, grape selection, and fermentation processes.
-* **Product differentiation:** Identifying distinct chemical profiles that could correspond to different product characteristics.
-* **Marketing and pricing:** Using objectively measured characteristics to investigate potential product segments.
-* **Quality analysis:** Comparing new samples against previously identified chemical groupings.
-
-With a larger and more detailed dataset, this type of clustering pipeline could potentially be incorporated into a winery or wine research workflow for continuously evaluating new samples.
-
----
-
-## Limitations & Future Work
-
-### Limitations
-
-The primary limitation is that clustering was performed using a PCA-transformed representation of the original data. While PCA preserves most of the dataset's variance, the resulting components do not directly correspond to individual original chemical features.
-
-Other limitations include:
-
-* The dataset contains only 178 observations.
-* Outliers can still influence cluster boundaries.
-* DBSCAN's treatment of many observations as noise demonstrates the sensitivity of density-based methods to this dataset.
-* Clustering results depend on the selected preprocessing and model parameters.
-* The analysis is based on a specific set of chemical measurements and may not generalize to other wine populations.
-
-### Future Work
-
-Potential extensions include:
-
-* Ensemble clustering
-* Semi-supervised clustering when partial labels are available
-* Deep clustering methods
-* Nonlinear dimensionality reduction
-* Additional chemical measurements
-* Larger datasets with more wine samples
-* More granular chemical and environmental features
-* Longitudinal analysis as new samples are collected
-
-A larger production dataset could also allow the clustering pipeline to be continuously updated as new wines are introduced, making it possible to monitor how new samples relate to previously identified chemical profiles.
-
----
-
-## Ethical Considerations
-
-The clustering performed in this project is primarily based on objective chemical measurements, so direct privacy concerns are minimal for the original dataset.
-
-However, the potential applications become more complicated if chemical clustering is combined with external information such as customer demographics, purchasing behavior, or geographic markets.
-
-For example, organizations could potentially use customer segmentation alongside wine characteristics to optimize pricing, distribution, or marketing strategies. While segmentation itself is not inherently unethical, combining datasets can introduce concerns around transparency, discrimination, and how the resulting classifications are used.
-
-If this type of system were expanded into a real-world winery or research environment, proprietary information would also need to be considered. Detailed chemical data could reveal information about production processes, crop management, or other characteristics that a winery may consider commercially sensitive.
-
-Responsible use would therefore require clear documentation of:
-
-* What data is being collected
-* How clusters are generated
-* What the clusters represent
-* How the results are used
-* Who has access to the underlying data
-
----
+This project analyzes the underlying structure of the Wine dataset using five clustering approaches — K-Means, K-Medoids, Agglomerative Clustering, Gaussian Mixture Models (GMM), and DBSCAN. The goal is to compare how each algorithm identifies groups within the wine samples and to determine whether those groups represent meaningful differences in chemical composition. The workflow moves through exploratory data analysis, feature scaling, PCA dimensionality reduction, model selection, cluster evaluation, visualization, and cluster stability testing.
 
 ## Repository Structure
 
-| File / Folder | Description |
-|---|---|
-│ `EDA.ipynb` | Exploratory data analysis |
-│ `ClusteringModels.ipynb` | Clustering model development, tuning, and comparison |
-│ `figures/` │ Generated analysis visualizations |
-│ `ClusteringModelsAnalysis.pdf` | Project/lab takeaways |
-│ `requirements.txt` | Python dependencies |
+| File / Folder                  | Description                                          |
+| ------------------------------ | ---------------------------------------------------- |
+| `EDA.ipynb`                    | Exploratory data analysis of the Wine dataset        |
+| `ClusteringModels.ipynb`       | Clustering model development, tuning, and comparison |
+| `figures/`                     | Generated analysis visualizations                    |
+| `ClusteringModelsAnalysis.pdf` | Project/lab takeaways                                |
+| `requirements.txt`             | Python dependencies                                  |
 
----
+## Dataset
+
+Uses the built-in Wine dataset from scikit-learn (`sklearn.datasets.load_wine`):
+
+* **Samples**: 178 wine observations
+* **Features**: 13 chemical properties (alcohol, flavonoids, phenolic compounds, color intensity, and other measurements)
+* **Target**: Three wine classes, used only as a reference for evaluation and never during clustering
+
+## Preprocessing
+
+* **Feature Scaling** — all 13 chemical features were standardized with `StandardScaler` so that features with larger numerical ranges didn't disproportionately drive the clustering.
+* **Dimensionality Reduction** — PCA was applied to the standardized data, retaining approximately 95% of the variance. The PCA space is also used to visualize clusters and examine how the major sources of variation separate the groups.
+* **Outlier Diagnostics** — an IQR-based analysis flagged potentially unusual observations; these were not automatically removed from the dataset.
+
+## Methods Implemented
+
+1. **K-Means** — centroid-based partitioning, evaluated with the elbow method/WCSS, silhouette scores, cluster centers, PCA visualizations, and silhouette plots. Served as the baseline, since the PCA-transformed data suits centroid-based clustering well.
+2. **K-Medoids** — similar to K-Means but uses actual observations as cluster representatives. Evaluated across multiple random initializations, within-cluster distance, silhouette scores, the gap statistic, medoid locations, stability analysis, and PCA visualizations. Particularly useful for checking whether the discovered structure held up across initializations.
+3. **Agglomerative Clustering** — builds a hierarchy of clusters via progressive merging. Compared Ward, Complete, Average, and Single linkage strategies where applicable, with quality assessed via silhouette scores, dendrograms, and PCA visualizations.
+4. **Gaussian Mixture Models (GMM)** — models the data as a mixture of probability distributions rather than hard geometric boundaries. Evaluated Full, Tied, Diagonal, and Spherical covariance structures using BIC, AIC, silhouette scores, PCA visualizations, and Gaussian component ellipses.
+5. **DBSCAN** — density-based clustering that doesn't require a predetermined cluster count. Tuned via `eps` and `min_samples`, and evaluated on cluster count, noise points, silhouette score (non-noise observations), k-distance analysis, parameter sensitivity, and PCA visualizations.
+
+## Usage
+
+1. Clone the repository and install dependencies:
+
+   ```
+   git clone https://github.com/QuackJake/cluster-model-analysis.git
+   cd cluster-model-analysis
+   pip install -r requirements.txt
+   ```
+2. Launch Jupyter: `jupyter notebook`
+3. Run `EDA.ipynb` first for exploratory analysis, then `ClusteringModels.ipynb` for clustering, tuning, and model comparison
+4. Review the generated visualizations in `figures/`
+
+## Results
+
+### Model Comparison
+
+The five algorithms produced broadly consistent views of the data's structure, though each emphasized different characteristics of it.
+
+| Model         | Key Strength                              | Key Limitation                                     |
+| ------------- | ----------------------------------------- | -------------------------------------------------- |
+| K-Means       | Simple, effective centroid-based baseline | Assumes relatively compact, spherical clusters     |
+| K-Medoids     | Robust representatives, stable clustering | More computationally expensive than K-Means        |
+| Agglomerative | Reveals hierarchical relationships        | Results depend on linkage strategy                 |
+| GMM           | Models probabilistic cluster membership   | Assumes a Gaussian mixture structure               |
+| DBSCAN        | Detects dense regions and outliers        | Classified a large portion of the dataset as noise |
+
+K-Medoids and Agglomerative Clustering both converged on an intuitive ~3-cluster solution, while GMM achieved slightly stronger silhouette performance without meaningfully changing the overall grouping. DBSCAN produced the *highest* silhouette score of any method, but more than 100 of the 178 observations were classified as noise — making that score less representative of a genuinely useful clustering for this dataset despite the strong number. No algorithm contradicted another; instead, the comparison shows the models capturing different aspects of the same underlying structure.
+
+### Cluster Quality Assessment
+
+Several lines of evidence suggest the resulting clusters reflect meaningful differences within the Wine dataset rather than random variation:
+
+* Clear separation is visible in PCA space.
+* Cluster profiles differ across the original chemical features.
+* Statistical testing shows significant differences between clusters.
+* Boxplots and radar charts reveal distinct chemical profiles per cluster.
+* Effect sizes suggest the differences are meaningful, not just statistically significant.
+* K-Medoids produced consistent cluster assignments across different initializations.
+* Cross-model comparisons show broad agreement in the underlying group structure.
+
+With only 178 observations, the relatively well-defined structure is useful to examine, but it also limits how confidently these results can be generalized to a broader wine population.
+
+### Feature Analysis
+
+PCA indicates that much of the separation between wine samples is driven by chemical characteristics tied to **alcohol, flavonoids, color intensity, and phenolic compounds**. PC1 contributes most to the observed separation, followed by PC2, with later components contributing progressively less variance. For clustering purposes, the first several components provide a compact representation that retains most of the dataset's information. Future work could explore whether dropping low-variance dimensions, or adding further chemically relevant features, sharpens cluster separation even more.
+
+### Practical Applications
+
+Though this analysis uses a relatively small academic dataset, the pipeline demonstrates how clustering could apply to wine chemistry and product analysis more broadly:
+
+* **Wine research** — identifying groups of wines with similar chemical profiles
+* **Winemaking** — investigating relationships between chemical composition, grape selection, and fermentation
+* **Product differentiation** — surfacing distinct chemical profiles tied to different product characteristics
+* **Marketing and pricing** — using objective chemical measurements to explore potential product segments
+* **Quality analysis** — comparing new samples against previously identified chemical groupings
+
+With a larger, more detailed dataset, this pipeline could plausibly be incorporated into a winery or research workflow for continuously evaluating new samples.
+
+### Limitations & Future Work
+
+**Limitations**
+
+* Clustering was performed on a PCA-transformed representation, so the resulting components don't map directly back to individual original chemical features.
+* The dataset contains only 178 observations.
+* Outliers can still influence cluster boundaries even without being removed.
+* DBSCAN's high noise classification shows how sensitive density-based methods are to this dataset.
+* Results depend on the chosen preprocessing steps and model parameters, and may not generalize to other wine populations.
+* The analysis is based on a specific set of chemical measurements and may not capture other factors that could influence wine groupings.
+
+**Future Work**
+
+* Ensemble clustering
+* Semi-supervised clustering when partial labels are available
+* Deep clustering methods and nonlinear dimensionality reduction
+* Additional chemical measurements and larger datasets with more samples
+* More granular chemical and environmental features
+* Longitudinal analysis as new samples are collected, potentially enabling continuous monitoring of how new wines relate to previously identified chemical profiles
+* Additional cross-model comparison techniques to investigate agreement between clustering solutions
+
+### Ethical Considerations
+
+The clustering here relies on objective chemical measurements, so direct privacy concerns with the original dataset are minimal. Risk increases if chemical clustering were combined with external information such as customer demographics, purchasing behavior, or geographic markets — segmentation itself isn't inherently unethical, but combining datasets like this raises concerns around transparency, discrimination, and how resulting classifications get used. Any real-world deployment would also need to account for commercially sensitive information a winery might not want disclosed, including production processes, crop management, or other proprietary characteristics. Responsible use would call for clear documentation of what data is collected, how clusters are generated, what the clusters represent, how results are used, and who has access to the underlying data.
 
 ## Technologies & Libraries
 
-This project uses Python and the following primary tools and libraries:
-
-* **Python**
-* **Jupyter Notebook**
-* **NumPy**
-* **Pandas**
-* **Scikit-learn**
-* **Matplotlib**
-* **Seaborn**
-* **SciPy**
-
----
-
-## Running the Project
-
-Clone the repository and install the required dependencies:
-
-```bash
-git clone https://github.com/QuackJake/cluster-model-analysis.git
-cd cluster-model-analysis
-pip install -r requirements.txt
-```
-
-Then open the notebooks using Jupyter:
-
-```bash
-jupyter notebook
-```
-
-The exploratory analysis can be found in `EDA.ipynb`, while the clustering analysis and model comparison can be found in `ClusteringModels.ipynb`.
-
----
+* Python
+* Jupyter Notebook
+* NumPy
+* Pandas
+* Scikit-learn
+* Matplotlib
+* Seaborn
+* SciPy
 
 ## Summary
 
-This project demonstrates how multiple clustering algorithms can be used to investigate the structure of a real-world chemical dataset.
+This project demonstrates how multiple clustering algorithms can be used to investigate the structure of a real-world chemical dataset. The Wine dataset shows a relatively strong and consistent clustering structure: while DBSCAN achieved the highest silhouette score, classifying more than half the dataset as noise made it less practical than the alternatives. K-Medoids, Agglomerative Clustering, K-Means, and GMM all produced more useful representations of the overall structure. The agreement across clustering algorithms, PCA visualizations, statistical testing, feature analysis, stability testing, and cross-model comparisons suggests the identified groups reflect meaningful differences in wine chemistry rather than artifacts of any single modeling technique.
 
-The results show that the Wine dataset contains a relatively strong and consistent clustering structure. While DBSCAN achieved the highest silhouette score, its classification of more than half of the dataset as noise made it less practical than the other approaches. K-Medoids, Agglomerative Clustering, K-Means, and GMM produced more useful representations of the overall dataset structure.
+## License
 
-The agreement between clustering algorithms, PCA visualizations, statistical testing, feature analysis, and stability testing suggests that the identified groups represent meaningful differences in wine chemistry rather than artifacts of a single modeling technique.
+This project uses the Wine dataset from scikit-learn, which is in the public domain.
