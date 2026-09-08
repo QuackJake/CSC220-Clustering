@@ -277,27 +277,13 @@ Responsible use would therefore require clear documentation of:
 
 ## Repository Structure
 
-```text
-cluster-model-analysis/
-│
-├── results/
-│   └── figures/
-│       └── Generated analysis visualizations
-│
-├── ClusteringModels.ipynb
-│   └── Clustering model development and comparison
-│
-├── EDA.ipynb
-│   └── Exploratory data analysis
-│
-├── Lab4.docx
-│   └── Project/lab documentation
-│
-├── requirements.txt
-│   └── Python dependencies
-│
-└── README.md
-```
+| File / Folder | Description |
+|---|---|
+│ `EDA.ipynb` | Exploratory data analysis |
+│ `ClusteringModels.ipynb` | Clustering model development, tuning, and comparison |
+│ `figures/` │ Generated analysis visualizations |
+│ `ClusteringModelsAnalysis.pdf` | Project/lab takeaways |
+│ `requirements.txt` | Python dependencies |
 
 ---
 
